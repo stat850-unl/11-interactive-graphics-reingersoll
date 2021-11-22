@@ -1,49 +1,47 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
+library(ggplot2)
+library(dbplyr)
 
-# Define UI for application that draws a histogram
-ui <- fluidPage(
+library(rsconnect)
+rsconnect::deployApp('C:\\Users\\airr0\\Desktop\\Stat 850\\11-interactive-graphics-reingersoll')
 
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
+#TidyTuesday Cocktail Data 
+cocktails <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-05-26/cocktails.csv')
 
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
 
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("distPlot")
-        )
+ui = fluidPage(
+    titlePanel("Cocktail Ingredients"),
+    sidebarPanel(
+        #creating a drop-down menu for ingredients
+        selectInput(inputId = "ingredient_type", 
+                    label = "Ingredient", 
+                    choices = sort(unique(cocktails$ingredient)), selected = "7-Up")
+    ),
+    #location of the histogram
+    mainPanel(
+        plotOutput(outputId = "category"),
     )
+    
+    
 )
 
-# Define server logic required to draw a histogram
-server <- function(input, output) {
 
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
+server = function(input, output) {
+    #function to filter by ingredient
+    cocktails_subset <- reactive({
+        cocktails %>%
+            filter(ingredient == input$ingredient_type)
+    })
 
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
+    #creating the bar graph
+    output$category <- renderPlot({
+        ggplot(cocktails_subset(), aes(x = cocktails$category), color = cocktails$category) + 
+            geom_bar()+
+            labs(x = "Category", y = "Total", title = "Cocktails")
     })
 }
 
-# Run the application 
+
+
+
 shinyApp(ui = ui, server = server)
