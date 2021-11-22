@@ -1,9 +1,9 @@
 library(shiny)
 library(ggplot2)
-library(dbplyr)
+library(dplyr)
 
 library(rsconnect)
-rsconnect::deployApp('C:\\Users\\airr0\\Desktop\\Stat 850\\11-interactive-graphics-reingersoll')
+# rsconnect::deployApp('C:\\Users\\airr0\\Desktop\\Stat 850\\11-interactive-graphics-reingersoll')
 
 #TidyTuesday Cocktail Data 
 cocktails <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-05-26/cocktails.csv')
@@ -35,7 +35,7 @@ server = function(input, output) {
 
     #creating the bar graph
     output$category <- renderPlot({
-        ggplot(cocktails_subset(), aes(x = cocktails$category), color = cocktails$category) + 
+        ggplot(cocktails_subset(), aes(x = category, color = category)) + 
             geom_bar()+
             labs(x = "Category", y = "Total", title = "Cocktails")
     })
